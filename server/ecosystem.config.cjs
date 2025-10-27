@@ -6,7 +6,7 @@ module.exports = {
       // Proses untuk server utama Anda
       name: 'web-server',
       script: 'server.js', 
-      watch: true,
+      watch: false, 
       env: {
         NODE_ENV: 'production',
       },
@@ -16,8 +16,7 @@ module.exports = {
       name: 'scheduler',
       script: './scripts/scheduler.js',
       watch: false,
-      autorestart: false,
+      autorestart: true, 
     },
   ],
 };
-

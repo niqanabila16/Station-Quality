@@ -48,5 +48,5 @@ cron.schedule('0 14 * * *', () => {
 
 // Jalankan tugas ini SATU KALI SAJA saat aplikasi pertama kali dimulai.
 // Ini berguna untuk mengisi data hari ini tanpa harus menunggu jadwal.
-runTaskWithRetry(runAvailabilityTask);
-runTaskWithRetry(runLatencyTask);
+// runTaskWithRetry(runAvailabilityTask);
+// runTaskWithRetry(runLatencyTask);

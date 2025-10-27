@@ -49,7 +49,8 @@ services:
     # Ini adalah cara paling andal untuk memastikan urutan eksekusi yang benar:
     # 1. Jalankan db:setup (migrate & seed) terlebih dahulu.
     # 2. Setelah selesai, baru jalankan PM2 untuk memulai server dan scheduler.
-    command: sh -c "npm run db:setup && pm2-runtime start ecosystem.config.cjs"
+    # command: sh -c "npm run db:setup && pm2-runtime start ecosystem.config.cjs"
+    command: pm2-runtime start ecosystem.config.cjs
     # command: sh -c "npm run db:setup && npm run dev"
 
 

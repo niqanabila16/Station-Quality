@@ -358,14 +358,49 @@ const Dashboard = () => {
 
   //useEffect untuk polling data utama
   useEffect(() => {
-    fetchData(); // Panggil data saat komponen pertama kali dimuat
+    const POLL_BASE = 10000; // 10s base
+    const POLL_MAX = 60000; // 60s max backoff
+    let failures = 0;
+    let isFetching = false;
+    let timerId: number | null = null;
 
-    // Set interval untuk memanggil ulang fetchData setiap 10 detik
-    const intervalId = setInterval(fetchData, 10000);
+    const scheduleNext = (delay: number) => {
+      if (timerId) window.clearTimeout(timerId);
+      timerId = window.setTimeout(runFetch, delay);
+    };
 
-    // Membersihkan interval saat komponen di-unmount
-    return () => clearInterval(intervalId);
-  }, []); // Dependensi kosong agar hanya berjalan sekali saat mount
+    const runFetch = async () => {
+      if (document.hidden) return scheduleNext(POLL_BASE); // pause when tab hidden
+      if (isFetching) return; // avoid overlap
+      isFetching = true;
+      try {
+        await fetchData();
+        failures = 0;
+        scheduleNext(POLL_BASE);
+      } catch (err) {
+        failures++;
+        const nextDelay = Math.min(POLL_BASE * Math.pow(2, failures - 1), POLL_MAX);
+        console.warn('fetchData failed, backing off to', nextDelay, err);
+        scheduleNext(nextDelay);
+      } finally {
+        isFetching = false;
+      }
+    };
+
+    // start immediately
+    runFetch();
+
+    // when tab becomes visible, fetch immediately
+    const onVis = () => {
+      if (!document.hidden) runFetch();
+    };
+    document.addEventListener('visibilitychange', onVis);
+
+    return () => {
+      if (timerId) window.clearTimeout(timerId);
+      document.removeEventListener('visibilitychange', onVis);
+    };
+  }, []); // run once on mount
 
   useEffect(() => {
     const fetchStackedBarData = async () => {
@@ -513,7 +548,7 @@ const Dashboard = () => {
             </div>
           </div>
           <div className="bg-white rounded p-2 text-center border border-gray-300 shadow">
-            <p className="text-xs font-semibold">OPERATIONAL</p>
+            <p className="text-xs font-semibold text-gray-600">OPERATIONAL</p>
             <p className="text-3xl font-bold mb-1">{isLoading ? "..." : combinedData.length}</p>
             <div className="grid grid-cols-2 gap-1">
               <div className="bg-green-600 text-white rounded p-1">

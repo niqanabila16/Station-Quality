@@ -6,7 +6,7 @@ module.exports = {
       // Proses untuk server utama Anda
       name: 'web-server',
       script: 'server.js', 
-      watch: false, 
+      watch: true, 
       env: {
         NODE_ENV: 'production',
       },

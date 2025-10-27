@@ -1,6 +1,6 @@
 CREATE TABLE `latency_history` (
   `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
-  `sta` VARCHAR(10) NOT NULL,
+  `stasiun_id` INT NOT NULL,
   `ipaddr` VARCHAR(45),
   `net` VARCHAR(10),
   `time_from_api` DATETIME,
@@ -21,5 +21,5 @@ CREATE TABLE `latency_history` (
   `uptbmkg` VARCHAR(100),
   `longitude` DECIMAL(10, 6),
   `latitude` DECIMAL(10, 6),
-  `recorded_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+  `recorded_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
+); 

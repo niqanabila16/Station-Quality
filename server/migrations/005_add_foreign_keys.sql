@@ -22,3 +22,8 @@ ALTER TABLE `availability`
 ADD CONSTRAINT `fk_availability_stasiun` 
 FOREIGN KEY (`stasiun_id`) REFERENCES `stasiun` (`stasiun_id`)
 ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `latency_history`
+ADD CONSTRAINT `fk_latency_stasiun`
+FOREIGN KEY (`stasiun_id`) REFERENCES `stasiun` (`stasiun_id`)
+ON DELETE CASCADE ON UPDATE CASCADE;

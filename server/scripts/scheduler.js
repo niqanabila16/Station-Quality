@@ -36,7 +36,7 @@ console.log(`[${dayjs().format('YYYY-MM-DD HH:mm:ss')}] 🕒 Penjadwal (Schedule
 console.log('Menunggu jadwal tugas berikutnya...');
 
 // Jadwalkan tugas untuk berjalan SETIAP HARI PUKUL 14:00 UTC SIANG (14.00 - 07.00).
-cron.schedule('0 5 * * *', () => {
+cron.schedule('0 7 * * *', () => {
   console.log(`\n[${dayjs().format('YYYY-MM-DD HH:mm:ss')}] 🔔 Waktu tugas terjadwal tercapai!`);
   // Jalankan tugas terjadwal juga dengan mekanisme coba-lagi
   runTaskWithRetry(runAvailabilityTask, 3, 5000);

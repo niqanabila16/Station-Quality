@@ -36,6 +36,7 @@ const StationHistory = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedPAZ, setSelectedPAZ] = useState<StationHistory | null>(null);
   const [showPAZModal, setShowPAZModal] = useState(false);
+  const [instrumentImages, setInstrumentImages] = useState<Record<number, string>>({});
   const [stationId, setStationId] = useState<number | null>(null);
   const [updating, setUpdating] = useState(false);
 
@@ -53,6 +54,10 @@ const StationHistory = () => {
   const handleShowInstrumentDetail = (instrument: StationHistory) => {
     setSelectedInstrument(instrument);
     setShowModal(true);
+    // Fetch image URL if not already cached
+    if (instrument.response_path && !instrumentImages[instrument.history_id]) {
+      fetchInstrumentImage(instrument.history_id);
+    }
   };
 
   const handleShowPAZDetail = (instrument: StationHistory) => {
@@ -70,13 +75,23 @@ const StationHistory = () => {
     setSelectedPAZ(null);
   };
 
-  const downloadInstrumentImage = (instrument: StationHistory) => {
+  const downloadInstrumentImage = async (instrument: StationHistory) => {
     if (!instrument.response_path) {
       alert('No image available for download');
       return;
     }
 
-    const imageUrl = `${import.meta.env.VITE_SERVER_BASE_URL}${instrument.response_path}`;
+    // Get the image URL from cache or fetch it
+    let imageUrl = instrumentImages[instrument.history_id];
+    if (!imageUrl) {
+      imageUrl = await fetchInstrumentImage(instrument.history_id);
+    }
+
+    if (!imageUrl) {
+      alert('Failed to load image for download');
+      return;
+    }
+
     const link = document.createElement('a');
     link.href = imageUrl;
     link.download = `instrument_${instrument.kode_stasiun}_${instrument.channel}_${new Date().toISOString().split('T')[0]}.jpg`;
@@ -84,6 +99,22 @@ const StationHistory = () => {
     link.click();
     document.body.removeChild(link);
   };
+
+  const fetchInstrumentImage = useCallback(async (historyId: number) => {
+    try {
+      const response = await axiosServer.get(`/api/station-history/${historyId}/response`);
+      if (response.data.success && response.data.data) {
+        setInstrumentImages(prev => ({
+          ...prev,
+          [historyId]: response.data.data
+        }));
+        return response.data.data;
+      }
+    } catch (error) {
+      console.error('Error fetching instrument image:', error);
+    }
+    return null;
+  }, []);
 
   // Column definitions for DataTable
   const columns: ColumnDef<StationHistory>[] = [
@@ -486,16 +517,23 @@ const StationHistory = () => {
                   <div className="border-2 border-gray-200 border-dashed rounded-lg p-4 max-w-lg">
                     <div className="text-center">
                       {selectedInstrument.response_path ? (
-                        <img
-                          src={`${import.meta.env.VITE_SERVER_BASE_URL}${selectedInstrument.response_path}`}
-                          alt={`Instrument Image - ${selectedInstrument.kode_stasiun} (${selectedInstrument.channel})`}
-                          className="max-w-full h-auto max-h-96 mx-auto rounded-lg shadow-md"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src = '/images/instruments/default.svg';
-                            target.alt = 'Image not available - using default';
-                          }}
-                        />
+                        instrumentImages[selectedInstrument.history_id] ? (
+                          <img
+                            src={instrumentImages[selectedInstrument.history_id]}
+                            alt={`Instrument Image - ${selectedInstrument.kode_stasiun} (${selectedInstrument.channel})`}
+                            className="max-w-full h-auto max-h-96 mx-auto rounded-lg shadow-md"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = '/images/instruments/default.svg';
+                              target.alt = 'Image not available - using default';
+                            }}
+                          />
+                        ) : (
+                          <div className="py-12">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                            <p className="text-sm text-gray-500">Loading image...</p>
+                          </div>
+                        )
                       ) : (
                         <div className="py-12">
                           <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">

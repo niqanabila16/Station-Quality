@@ -21,7 +21,7 @@ router.get('/station/:id', getStationHistoryById);
 // PUT /api/station-history/station/:id - Get station history by station ID
 router.put('/station/:id', updateStationHistoryById);
 
-// GET /api/station-history/station/:id - Get station history by station ID
+// GET /api/station-history/:history_id/response - Get response image by history ID
 router.get('/:id/response', getResponseImageHistoryById);
 
 export default router;

@@ -1,6 +1,6 @@
 CREATE TABLE `latency_history` (
-  `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
-  `stasiun_id` INT NOT NULL,
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `stasiun_id` INT,
   `ipaddr` VARCHAR(45),
   `net` VARCHAR(10),
   `time_from_api` DATETIME,
@@ -22,4 +22,5 @@ CREATE TABLE `latency_history` (
   `longitude` DECIMAL(10, 6),
   `latitude` DECIMAL(10, 6),
   `recorded_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
+    FOREIGN KEY (`stasiun_id`) REFERENCES `stasiun`(`stasiun_id`) ON DELETE SET NULL
 ); 
